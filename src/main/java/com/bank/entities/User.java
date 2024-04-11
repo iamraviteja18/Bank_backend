@@ -23,10 +23,11 @@ public class User implements UserDetails {
     public static final String SEQUENCE_NAME = "user_sequence";
     private String userId;
     private String username;
-//    private String firstName;
-//    private String lastName;
+    private String firstName;
+    private String lastName;
     private String email;
     private String password;
+    private String phoneNumber;
     @Enumerated(EnumType.STRING)
     private Role role;
     private String StripeBankAccountToken;

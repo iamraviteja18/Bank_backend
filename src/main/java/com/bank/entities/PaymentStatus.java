@@ -1,7 +1,8 @@
 package com.bank.entities;
 
 public enum PaymentStatus {
-    PENDING,
+    PENDING_ADMIN,
     APPROVED,
-    DECLINED
+    DECLINED,
+    PENDING_CUSTOMER
 }

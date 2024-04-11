@@ -1,9 +1,6 @@
 package com.bank.service.impl;
 
-import com.bank.entities.Account;
-import com.bank.entities.PaymentStatus;
-import com.bank.entities.TransactionRequest;
-import com.bank.entities.TransactionType;
+import com.bank.entities.*;
 import com.bank.repository.AccountRepository;
 import com.bank.repository.TransactionRepository;
 import com.bank.service.TransactionService;
@@ -27,8 +24,12 @@ public class TransactionServiceImpl implements TransactionService {
     private AccountRepository accountRepository;
 
 
-    public List<TransactionRequest> findAllPendingTransactions() {
-        return transactionRepository.findByStatus(PaymentStatus.PENDING);
+    public List<TransactionRequest> findAllPendingAdminTransactions() {
+        return transactionRepository.findByStatus(PaymentStatus.PENDING_ADMIN);
+    }
+
+    public List<TransactionRequest> findAllPendingCustomerTransactions() {
+        return transactionRepository.findByStatus(PaymentStatus.PENDING_CUSTOMER);
     }
 
     public String approveTransaction(String transactionId, boolean approve) {
@@ -38,7 +39,7 @@ public class TransactionServiceImpl implements TransactionService {
             throw new IllegalStateException("Transaction not found");
         } else {
             TransactionRequest transaction = transactions.get();
-            if (!transaction.getStatus().equals(PaymentStatus.PENDING)) {
+            if (!transaction.getStatus().equals(PaymentStatus.PENDING_ADMIN)) {
                 throw new IllegalStateException("Transaction is not pending");
             }
             // Step 2: Approve or Decline the Transaction
@@ -83,7 +84,7 @@ public class TransactionServiceImpl implements TransactionService {
             transactionRequest.setTransactionTime(LocalDateTime.now()); // Set transaction time
             // Check for approval requirement
             if (amount.compareTo(new BigDecimal("1000")) > 0) {
-                transactionRequest.setStatus(PaymentStatus.PENDING); // Set status to pending
+                transactionRequest.setStatus(PaymentStatus.PENDING_ADMIN); // Set status to pending
                 transactionRepository.save(transactionRequest);
                 return ResponseEntity.ok("Transaction is pending approval.");
             } else { // Process transactions below $1000 immediately
@@ -126,43 +127,47 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public ResponseEntity<?> transfer(String accountId, BigDecimal amount) {
-
-        Account account = accountRepository.findByAccountNumber(accountId);
-        
-        if(account != null) {
-            TransactionRequest transactionRequest = new TransactionRequest();
-//            transactionRequest.setAccountId(accountId);
-            transactionRequest.setAmount(amount);
-            transactionRequest.setTransactionType(TransactionType.DEBIT);
-            transactionRequest.setTransactionId(UUID.randomUUID().toString());
-//            transactionRequest.setUserId(account.getUserId());
-            transactionRequest.setTransactionTime(LocalDateTime.now()); // Set transaction time
-            // Check for approval requirement
-            if (amount.compareTo(new BigDecimal("1000")) > 0) {
-                transactionRequest.setStatus(PaymentStatus.PENDING); // Set status to pending
-                transactionRepository.save(transactionRequest);
-                return ResponseEntity.ok("Transaction is pending approval.");
-            } else { // Process transactions below $1000 immediately
-                if (account.getBalance().compareTo(amount) >= 0) {
-                    account.setBalance(account.getBalance().subtract(amount));
-                    accountRepository.save(account);
-                    transactionRequest.setStatus(PaymentStatus.APPROVED); // Set status to approved
-                    transactionRepository.save(transactionRequest);
-                    return ResponseEntity.ok("Amount debited successfully.");
-                } else {
-                    return ResponseEntity.badRequest().body("Insufficient balance.");
-                }
-            }
-        }
-        return ResponseEntity.badRequest().body("Account not found.");
-//        return null;
+        return null;
     }
+
+//    @Override
+//    public ResponseEntity<?> transfer(String accountId, BigDecimal amount) {
+//
+//        Account account = accountRepository.findByAccountNumber(accountId);
+//
+//        if(account != null) {
+//            TransactionRequest transactionRequest = new TransactionRequest();
+////            transactionRequest.setAccountId(accountId);
+//            transactionRequest.setAmount(amount);
+//            transactionRequest.setTransactionType(TransactionType.DEBIT);
+//            transactionRequest.setTransactionId(UUID.randomUUID().toString());
+////            transactionRequest.setUserId(account.getUserId());
+//            transactionRequest.setTransactionTime(LocalDateTime.now()); // Set transaction time
+//            // Check for approval requirement
+//            if (amount.compareTo(new BigDecimal("1000")) > 0) {
+//                transactionRequest.setStatus(PaymentStatus.PENDING); // Set status to pending
+//                transactionRepository.save(transactionRequest);
+//                return ResponseEntity.ok("Transaction is pending approval.");
+//            } else { // Process transactions below $1000 immediately
+//                if (account.getBalance().compareTo(amount) >= 0) {
+//                    account.setBalance(account.getBalance().subtract(amount));
+//                    accountRepository.save(account);
+//                    transactionRequest.setStatus(PaymentStatus.APPROVED); // Set status to approved
+//                    transactionRepository.save(transactionRequest);
+//                    return ResponseEntity.ok("Amount debited successfully.");
+//                } else {
+//                    return ResponseEntity.badRequest().body("Insufficient balance.");
+//                }
+//            }
+//        }
+//        return ResponseEntity.badRequest().body("Account not found.");
+////        return null;
+//    }
 
     public ResponseEntity<?> transferFunds(String fromAccountId, String toAccountId, BigDecimal amount) {
         // Retrieve both accounts
         Account fromAccount = accountRepository.findByAccountNumber(fromAccountId);
         Account toAccount = accountRepository.findByAccountNumber(toAccountId);
-
         // Check if both accounts exist
         if (fromAccount == null) {
             return ResponseEntity.badRequest().body("From account not found.");
@@ -170,38 +175,58 @@ public class TransactionServiceImpl implements TransactionService {
         if (toAccount == null) {
             return ResponseEntity.badRequest().body("To account not found.");
         }
-
         // Check if from account has enough funds
-        if (fromAccount.getBalance().compareTo(amount) < 0) {
-            return ResponseEntity.badRequest().body("Insufficient funds in from account.");
+//        if (fromAccount.getBalance().compareTo(amount) < 0) {
+//            return ResponseEntity.badRequest().body("Insufficient funds in from account.");
+//        }
+        if (toAccount.getAccountType() == AccountType.MERCHANT) {
+            return ResponseEntity.ok("Transfer completed successfully.");
+        } else {
+            TransactionRequest debitTransaction = new TransactionRequest();
+            debitTransaction.setFromAccountId(fromAccountId);
+            debitTransaction.setToAccountId(toAccountId);
+            debitTransaction.setFromUserId(fromAccount.getUserId());
+            debitTransaction.setToUserId(toAccount.getUserId());
+            debitTransaction.setAmount(amount);
+            debitTransaction.setTransactionType(TransactionType.TRANSFER);
+            debitTransaction.setTransactionId(UUID.randomUUID().toString());
+            debitTransaction.setTransactionTime(LocalDateTime.now());
+            //debitTransaction.setStatus(PaymentStatus.APPROVED); // Assuming immediate approval for simplicity
+//            transactionRepository.save(debitTransaction);
+
+            if (amount.compareTo(new BigDecimal("1000")) > 0) {
+                debitTransaction.setStatus(PaymentStatus.PENDING_ADMIN); // Set status to pending
+                transactionRepository.save(debitTransaction);
+                return ResponseEntity.ok("Transaction is pending approval.");
+            } else { // Process transactions below $1000 immediately
+//                fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
+//                toAccount.setBalance(toAccount.getBalance().add(amount));
+//                accountRepository.save(fromAccount);
+//                accountRepository.save(toAccount);
+                //account.setBalance(account.getBalance().subtract(amount));
+                //accountRepository.save(account);
+                debitTransaction.setStatus(PaymentStatus.PENDING_CUSTOMER); // Set status to approved
+                transactionRepository.save(debitTransaction);
+                return ResponseEntity.ok("Transfer completed successfully.");
+            }
+
+//            // Create credit transaction for to account
+//            TransactionRequest creditTransaction = new TransactionRequest();
+//            creditTransaction.setToAccountId(toAccountId);
+//            creditTransaction.setAmount(amount); // Positive for credit
+//            creditTransaction.setTransactionType(TransactionType.CREDIT);
+//            creditTransaction.setTransactionId(UUID.randomUUID().toString());
+//            creditTransaction.setTransactionTime(LocalDateTime.now());
+//            creditTransaction.setStatus(PaymentStatus.APPROVED); // Assuming immediate approval for simplicity
+//            transactionRepository.save(creditTransaction);
+
+//            // Update account balances
+//            fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
+//            toAccount.setBalance(toAccount.getBalance().add(amount));
+//            accountRepository.save(fromAccount);
+//            accountRepository.save(toAccount);
+
+            //return ResponseEntity.ok("Transfer completed successfully.");
         }
-
-        // Create debit transaction for from account
-        TransactionRequest debitTransaction = new TransactionRequest();
-        debitTransaction.setFromAccountId(fromAccountId);
-        debitTransaction.setAmount(amount.negate()); // Negative for debit
-        debitTransaction.setTransactionType(TransactionType.DEBIT);
-        debitTransaction.setTransactionId(UUID.randomUUID().toString());
-        debitTransaction.setTransactionTime(LocalDateTime.now());
-        debitTransaction.setStatus(PaymentStatus.APPROVED); // Assuming immediate approval for simplicity
-        transactionRepository.save(debitTransaction);
-
-        // Create credit transaction for to account
-        TransactionRequest creditTransaction = new TransactionRequest();
-        creditTransaction.setToAccountId(toAccountId);
-        creditTransaction.setAmount(amount); // Positive for credit
-        creditTransaction.setTransactionType(TransactionType.CREDIT);
-        creditTransaction.setTransactionId(UUID.randomUUID().toString());
-        creditTransaction.setTransactionTime(LocalDateTime.now());
-        creditTransaction.setStatus(PaymentStatus.APPROVED); // Assuming immediate approval for simplicity
-        transactionRepository.save(creditTransaction);
-
-        // Update account balances
-        fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
-        toAccount.setBalance(toAccount.getBalance().add(amount));
-        accountRepository.save(fromAccount);
-        accountRepository.save(toAccount);
-
-        return ResponseEntity.ok("Transfer completed successfully.");
     }
 }

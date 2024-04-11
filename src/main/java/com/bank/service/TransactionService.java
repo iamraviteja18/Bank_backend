@@ -9,4 +9,5 @@ public interface TransactionService {
     ResponseEntity<?> credit(String accountId, BigDecimal amount);
 
     ResponseEntity<?> transfer(String accountId, BigDecimal amount);
+    public ResponseEntity<?> transferFunds(String fromAccountId, String toAccountId, BigDecimal amount);
 }

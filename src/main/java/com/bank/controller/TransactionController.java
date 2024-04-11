@@ -57,7 +57,7 @@ public class TransactionController {
 
     @PostMapping("/transfer")
     public ResponseEntity<?> transfer(@RequestBody TransactionRequest transactionRequest) {
-        return transactionService.transfer(transactionRequest.getFromAccountId(),transactionRequest.getToAccountId(), transactionRequest.getAmount());
+        return transactionService.transferFunds(transactionRequest.getFromAccountId(),transactionRequest.getToAccountId(), transactionRequest.getAmount());
     }
 
     @GetMapping("/pending")

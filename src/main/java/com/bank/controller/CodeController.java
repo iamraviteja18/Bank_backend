@@ -41,19 +41,10 @@ public class CodeController {
     private UserTOTPRepository userTOTPRepository;
 
     @SneakyThrows
-    @GetMapping("/generate/")
+    @PostMapping("/generate/")
     public void generate(@RequestBody UserTOTP username, HttpServletResponse response) {
 
-
         final GoogleAuthenticatorKey key = gAuth.createCredentials(username.getUserName());
-
-//        List<UserTOTP> userTOTP = userTOTPRepository.findByUserName(username.getUserName());
-//        long currentTimestampEpoch = Instant.now().getEpochSecond();
-//        List<UserTOTP> new_userTOTP = userTOTP.stream().filter(item -> item.getTimestamp().equals("null")).collect(Collectors.toList());
-//
-//        if (new_userTOTP.notEmpty()) {
-//            new_userTOTP.setTimestamp(String.valueOf(currentTimestampEpoch));
-//        }
 
         List<UserTOTP> userTOTP = userTOTPRepository.findByUserName(username.getUserName());
         long currentTimestampEpoch = Instant.now().getEpochSecond();

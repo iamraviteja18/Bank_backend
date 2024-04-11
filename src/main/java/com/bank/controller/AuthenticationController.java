@@ -65,21 +65,21 @@ public class AuthenticationController {
     }
 
 
-    @SneakyThrows
-    @GetMapping("/generate_new/")
-    public void generate(@RequestBody String username, HttpServletResponse response) {
-        final GoogleAuthenticatorKey key = gAuth.createCredentials(username);
-
-        QRCodeWriter qrCodeWriter = new QRCodeWriter();
-
-        String otpAuthURL = GoogleAuthenticatorQRGenerator.getOtpAuthTotpURL("my-demo", username, key);
-
-        BitMatrix bitMatrix = qrCodeWriter.encode(otpAuthURL, BarcodeFormat.QR_CODE, 200, 200);
-
-        ServletOutputStream outputStream = response.getOutputStream();
-        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
-        outputStream.close();
-    }
+//    @SneakyThrows
+//    @GetMapping("/generate_new/")
+//    public void generate(@RequestBody String username, HttpServletResponse response) {
+//        final GoogleAuthenticatorKey key = gAuth.createCredentials(username);
+//
+//        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+//
+//        String otpAuthURL = GoogleAuthenticatorQRGenerator.getOtpAuthTotpURL("my-demo", username, key);
+//
+//        BitMatrix bitMatrix = qrCodeWriter.encode(otpAuthURL, BarcodeFormat.QR_CODE, 200, 200);
+//
+//        ServletOutputStream outputStream = response.getOutputStream();
+//        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
+//        outputStream.close();
+//    }
 
 //    @GetMapping("/profile")
 //    public ResponseEntity<UserProfileResponse> getProfile(Authentication authentication) {

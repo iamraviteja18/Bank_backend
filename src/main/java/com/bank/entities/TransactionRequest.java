@@ -16,8 +16,10 @@ import java.time.LocalDateTime;
 public class TransactionRequest {
     @Id
     private String id;
-    private String userId;
-    private String accountId;
+    private String toUserId;
+    private String fromUserId;
+    private String fromAccountId;
+    private String toAccountId;
     private BigDecimal amount;
     private TransactionType transactionType;
     private String transactionId;

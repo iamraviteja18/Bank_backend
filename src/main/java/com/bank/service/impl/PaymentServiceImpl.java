@@ -2,11 +2,13 @@ package com.bank.service.impl;
 
 import com.bank.entities.Account;
 import com.bank.entities.Payment;
+import com.bank.entities.PaymentRequest;
 import com.bank.entities.Refund;
 import com.bank.repository.AccountRepository;
 import com.bank.repository.PaymentRepository;
 import com.bank.repository.RefundRepository;
 import com.bank.service.PaymentService;
+import com.mongodb.client.MongoIterable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -67,5 +69,10 @@ public class PaymentServiceImpl implements PaymentService {
         refund.setTimestamp(Instant.now());
         refundRepository.save(refund);
         return refund;
+    }
+
+    @Override
+    public MongoIterable<Object> initiatePayment(String username, PaymentRequest request) {
+        return null;
     }
 }

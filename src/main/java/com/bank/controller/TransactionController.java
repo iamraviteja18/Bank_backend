@@ -47,17 +47,17 @@ public class TransactionController {
 
     @PostMapping("/debit")
     public ResponseEntity<?> debitFunds(@RequestBody TransactionRequest transactionRequest) {
-        return transactionService.debit(transactionRequest.getAccountId(), transactionRequest.getAmount());
+        return transactionService.debit(transactionRequest.getFromAccountId(), transactionRequest.getAmount());
     }
 
     @PostMapping("/credit")
     public ResponseEntity<?> creditFunds(@RequestBody TransactionRequest transactionRequest) {
-        return transactionService.credit(transactionRequest.getAccountId(), transactionRequest.getAmount());
+        return transactionService.credit(transactionRequest.getToAccountId(), transactionRequest.getAmount());
     }
 
     @PostMapping("/transfer")
     public ResponseEntity<?> transfer(@RequestBody TransactionRequest transactionRequest) {
-        return transactionService.transfer(transactionRequest.getAccountId(), transactionRequest.getAmount());
+        return transactionService.transfer(transactionRequest.getFromAccountId(),transactionRequest.getToAccountId(), transactionRequest.getAmount());
     }
 
     @GetMapping("/pending")
@@ -68,9 +68,6 @@ public class TransactionController {
 
     @PostMapping("/approveTransaction")
     public ResponseEntity<String> approveTransaction(@RequestBody ApprovalRequest approvalRequest) {
-//        // Step 1: Fetch the transaction and attempt to approve/decline it
-//        String status = transactionService.approveTransaction(approvalRequest.getTransactionId(), approvalRequest.isApprove());
-//        return ResponseEntity.ok(status);
         try {
             // Step 1: Fetch the transaction and attempt to approve/decline it
             String status = transactionService.approveTransaction(approvalRequest.getTransactionId(), approvalRequest.isApprove());

@@ -1,0 +1,376 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>ACH Payment Form</title>-->
+<!--    <script src="https://js.stripe.com/v3/"></script>-->
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            width: 100%;-->
+<!--            max-width: 400px;-->
+<!--            margin: 0 auto;-->
+<!--            padding: 20px;-->
+<!--            box-sizing: border-box;-->
+<!--        }-->
+<!--        .form-row {-->
+<!--            margin-bottom: 20px;-->
+<!--        }-->
+<!--        label {-->
+<!--            display: block;-->
+<!--            margin-bottom: 10px;-->
+<!--        }-->
+<!--        input, button {-->
+<!--            width: 100%;-->
+<!--            padding: 10px;-->
+<!--            margin-bottom: 10px;-->
+<!--            box-sizing: border-box;-->
+<!--        }-->
+<!--        button {-->
+<!--            background-color: #007bff;-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            cursor: pointer;-->
+<!--            border-radius: 5px;-->
+<!--        }-->
+<!--        #card-errors {-->
+<!--            color: red;-->
+<!--            margin-top: 10px;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--<h2>ACH Payment Form</h2>-->
+<!--&lt;!&ndash;<form id="bank-account-form">&ndash;&gt;-->
+<!--&lt;!&ndash;    <div class="form-row">&ndash;&gt;-->
+<!--&lt;!&ndash;        <label for="routing-number">Routing Number</label>&ndash;&gt;-->
+<!--&lt;!&ndash;        <input id="routing-number" type="text" required>&ndash;&gt;-->
+<!--&lt;!&ndash;    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;    <div class="form-row">&ndash;&gt;-->
+<!--&lt;!&ndash;        <label for="account-number">Account Number</label>&ndash;&gt;-->
+<!--&lt;!&ndash;        <input id="account-number" type="text" required>&ndash;&gt;-->
+<!--&lt;!&ndash;    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;    <div class="form-row">&ndash;&gt;-->
+<!--&lt;!&ndash;        <label for="amount">amount</label>&ndash;&gt;-->
+<!--&lt;!&ndash;        <input id="amount" type="text" required>&ndash;&gt;-->
+<!--&lt;!&ndash;    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;    &lt;!&ndash; Include other necessary inputs here, such as account holder's name and type if needed &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    <button type="submit">Submit</button>&ndash;&gt;-->
+<!--&lt;!&ndash;    <div id="card-errors" role="alert"></div>&ndash;&gt;-->
+<!--&lt;!&ndash;</form>&ndash;&gt;-->
+
+<!--<form id="bank-account-form">-->
+<!--    <input type="text" id="account-holder-name" placeholder="Account Holder's Name" required />-->
+<!--    <input type="text" id="account-number" placeholder="Account Number" required />-->
+<!--    <input type="text" id="routing-number" placeholder="Routing Number" required />-->
+<!--    <input type="text" id="amount" placeholder="Amount" required />-->
+<!--    <button type="submit">Submit</button>-->
+<!--</form>-->
+
+<!--<script>-->
+<!--    // Replace 'pk_test_yourPublishableKeyHere' with your actual Stripe publishable key-->
+<!--    var stripe = Stripe('pk_test_51P1up1CPlNIxsdNMzx3aOyzsMHRIJAZpw86bkhmxoREVppWZakCuzj9UW5FL39nslNCtYa6a03eIe0m2ppTIRzK4005qxvFLBN');-->
+
+<!--&lt;!&ndash;    document.getElementById('bank-account-form').addEventListener('submit', function(event) {&ndash;&gt;-->
+<!--&lt;!&ndash;        event.preventDefault();&ndash;&gt;-->
+
+<!--&lt;!&ndash;        // TODO: Use Stripe.js to securely send the bank account information to Stripe&ndash;&gt;-->
+<!--&lt;!&ndash;        // and create a bank account token.&ndash;&gt;-->
+<!--&lt;!&ndash;        // This part of the code will depend on Stripe's current best practices for handling ACH payments&ndash;&gt;-->
+<!--&lt;!&ndash;        // As of my last training data, you typically need to handle this server-side&ndash;&gt;-->
+
+<!--&lt;!&ndash;        // For example, let's assume you're sending the form data to your server&ndash;&gt;-->
+<!--&lt;!&ndash;        fetch('/your-server-endpoint', {&ndash;&gt;-->
+<!--&lt;!&ndash;            method: 'POST',&ndash;&gt;-->
+<!--&lt;!&ndash;            headers: {&ndash;&gt;-->
+<!--&lt;!&ndash;                'Content-Type': 'application/json',&ndash;&gt;-->
+<!--&lt;!&ndash;            },&ndash;&gt;-->
+<!--&lt;!&ndash;            body: JSON.stringify({&ndash;&gt;-->
+<!--&lt;!&ndash;                routingNumber: document.getElementById('routing-number').value,&ndash;&gt;-->
+<!--&lt;!&ndash;                accountNumber: document.getElementById('account-number').value,&ndash;&gt;-->
+<!--&lt;!&ndash;                amount: document.getElementById('amount').value,&ndash;&gt;-->
+<!--&lt;!&ndash;                // Include any other necessary information&ndash;&gt;-->
+<!--&lt;!&ndash;            }),&ndash;&gt;-->
+<!--&lt;!&ndash;        })&ndash;&gt;-->
+<!--&lt;!&ndash;        .then(response => response.json())&ndash;&gt;-->
+<!--&lt;!&ndash;        .then(data => {&ndash;&gt;-->
+<!--&lt;!&ndash;            if (data.error) {&ndash;&gt;-->
+<!--&lt;!&ndash;                // Display an error message if there was a problem processing the payment&ndash;&gt;-->
+<!--&lt;!&ndash;                document.getElementById('card-errors').textContent = data.error.message;&ndash;&gt;-->
+<!--&lt;!&ndash;            } else {&ndash;&gt;-->
+<!--&lt;!&ndash;                // Handle successful token creation and payment processing&ndash;&gt;-->
+<!--&lt;!&ndash;                console.log('Success:', data);&ndash;&gt;-->
+<!--&lt;!&ndash;                // You might redirect the user or display a success message&ndash;&gt;-->
+<!--&lt;!&ndash;            }&ndash;&gt;-->
+<!--&lt;!&ndash;        })&ndash;&gt;-->
+<!--&lt;!&ndash;        .catch((error) => {&ndash;&gt;-->
+<!--&lt;!&ndash;            console.error('Error:', error);&ndash;&gt;-->
+<!--&lt;!&ndash;        });&ndash;&gt;-->
+<!--&lt;!&ndash;    });&ndash;&gt;-->
+<!--    document.getElementById('bank-account-form').addEventListener('submit', function(event) {-->
+<!--    event.preventDefault();-->
+
+<!--    // Define your API endpoint-->
+<!--    const apiEndpoint = 'http://localhost:8081/api/v1/payments/initiate';-->
+
+<!--    // Construct the request headers-->
+<!--    const headers = {-->
+<!--        'Content-Type': 'application/json',-->
+<!--        // Include the Authorization header with your Bearer token-->
+<!--        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtQG1haWwuY29tIiwiaWF0IjoxNzEyMjgzNzg5LCJleHAiOjE3MTIyODUyMjl9.JI7mHZfaX0nkA4QJe9JhgJ8OjjojYOKZ7iVVIxKJ1NU'-->
+<!--    };-->
+
+<!--    // Prepare the request body with the account details-->
+<!--    const body = JSON.stringify({-->
+<!--        amount: document.getElementById('amount').value, // or dynamically from form input-->
+<!--        accountNumber: document.getElementById('account-number').value,-->
+<!--        routingNumber: document.getElementById('routing-number').value,-->
+<!--    });-->
+
+<!--    // Use the Fetch API to send the request to your server-->
+<!--    fetch(apiEndpoint, {-->
+<!--        method: 'POST',-->
+<!--        headers: headers,-->
+<!--        body: body,-->
+<!--    })-->
+<!--    .then(response => response.json())-->
+<!--    .then(data => {-->
+<!--        if (data.error) {-->
+<!--            // Display an error message if there was a problem processing the payment-->
+<!--            document.getElementById('card-errors').textContent = data.error.message;-->
+<!--        } else {-->
+<!--            // Handle successful payment processing-->
+<!--            console.log('Payment success:', data);-->
+<!--            // Implement your success handling logic, e.g., displaying a success message-->
+<!--        }-->
+<!--    })-->
+<!--    .catch((error) => {-->
+<!--        console.error('Error:', error);-->
+<!--        document.getElementById('card-errors').textContent = 'An error occurred. Please try again.';-->
+<!--    });-->
+<!--});-->
+
+<!--</script>-->
+
+<!--</body>-->
+<!--</html>-->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACH Payment Form</title>
+    <script src="https://js.stripe.com/v3/"></script>-->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .form-row {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #card-errors {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+<!--    <script src="https://js.stripe.com/v3/"></script>-->
+    <script>
+<!--        document.addEventListener('DOMContentLoaded', function() {-->
+<!--            const stripe = Stripe('pk_test_51P1up1CPlNIxsdNMzx3aOyzsMHRIJAZpw86bkhmxoREVppWZakCuzj9UW5FL39nslNCtYa6a03eIe0m2ppTIRzK4005qxvFLBN'); // Use your Stripe public key-->
+
+<!--            const form = document.getElementById('payment-form');-->
+
+<!--            form.addEventListener('submit', function(event) {-->
+<!--                event.preventDefault();-->
+
+<!--                fetch('https://api.ipify.org?format=json')-->
+<!--                        .then(response => response.json())-->
+<!--                        .then(data => {-->
+<!--                            const clientIp = data.ip; // Client's IP address-->
+<!--                            submitPaymentForm(clientIp); // Proceed to submit the form with the IP-->
+<!--                        })-->
+<!--                        .catch(error => {-->
+<!--                            console.error('Error fetching client IP:', error);-->
+<!--                            // Handle error, maybe proceed without IP or show an error message-->
+<!--                        });-->
+<!--                });-->
+<!--                function submitFormWithIp(clientIp) {-->
+
+<!--                const accountHolderName = document.getElementById('account-holder-name').value;-->
+<!--                const accountNumber = document.getElementById('account-number').value;-->
+<!--                const routingNumber = document.getElementById('routing-number').value;-->
+<!--                const amount = document.getElementById('amount').value;-->
+<!--                const customerEmail = document.getElementById('customer-email').value;-->
+
+<!--                // Use Stripe.js to create a token. Here we're directly handling account numbers which is not recommended.-->
+<!--                // In production, use Stripe Elements or a more secure method to handle this process.-->
+<!--                stripe.createPaymentMethod({-->
+<!--                    type: 'us_bank_account',-->
+<!--                    billing_details: {-->
+<!--                        name: accountHolderName,-->
+<!--                        email: customerEmail,-->
+<!--                    },-->
+<!--                    us_bank_account: {-->
+<!--                        account_number: accountNumber,-->
+<!--                        routing_number: routingNumber,-->
+<!--                        account_holder_type: "individual",-->
+<!--                    },-->
+<!--                })-->
+<!--&lt;!&ndash;                stripe.createToken('bank_account', {&ndash;&gt;-->
+<!--&lt;!&ndash;                    country: 'US',&ndash;&gt;-->
+<!--&lt;!&ndash;                    currency: 'usd',&ndash;&gt;-->
+<!--&lt;!&ndash;                    routing_number: routingNumber,&ndash;&gt;-->
+<!--&lt;!&ndash;                    account_number: accountNumber,&ndash;&gt;-->
+<!--&lt;!&ndash;                    account_holder_name: accountHolderName,&ndash;&gt;-->
+<!--&lt;!&ndash;                    account_holder_type: 'individual',&ndash;&gt;-->
+<!--&lt;!&ndash;                })&ndash;&gt;-->
+<!--                .then(function(result) {-->
+<!--                    if (result.error) {-->
+<!--                        // Inform the user if there was an error-->
+<!--                        const errorElement = document.getElementById('error-message');-->
+<!--                        errorElement.textContent = result.error.message;-->
+<!--                    } else {-->
+<!--                        const paymentMethodId = result.paymentMethod.id;-->
+<!--                        const apiEndpoint = 'http://localhost:8081/api/v1/payments/initiate';-->
+<!--                        // Send the token to your server-->
+<!--                        fetch(apiEndpoint, { // Replace with your server endpoint-->
+<!--                            method: 'POST',-->
+<!--                            headers: { 'Content-Type': 'application/json' },-->
+<!--                            body: JSON.stringify({-->
+<!--                                paymentMethodId: paymentMethodId,-->
+<!--                                amount: amount,-->
+<!--                                routingNumber: routingNumber,-->
+<!--                                accountNumber: accountNumber,-->
+<!--                                customerEmail: customerEmail,-->
+<!--                                clientIp:clientIp-->
+<!--                            }),-->
+<!--                        }).then(function(response) {-->
+<!--                            return response.json();-->
+<!--                        }).then(function(data) {-->
+<!--                            console.log(data);-->
+<!--                            // Process the response from your server-->
+<!--                        }).catch(function(error) {-->
+<!--                            console.error('Error:', error);-->
+<!--                        });-->
+<!--                    }-->
+<!--                });-->
+<!--                }-->
+<!--            });-->
+<!--        });-->
+        document.addEventListener('DOMContentLoaded', function() {
+    const stripe = Stripe('pk_test_51P1up1CPlNIxsdNMzx3aOyzsMHRIJAZpw86bkhmxoREVppWZakCuzj9UW5FL39nslNCtYa6a03eIe0m2ppTIRzK4005qxvFLBN'); // Use your Stripe public key
+    const form = document.getElementById('payment-form');
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // First, fetch the client's IP address
+        fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(ipData => {
+            const clientIp = ipData.ip;
+            submitFormWithIp(clientIp);
+        })
+        .catch(error => {
+            console.error('Error fetching IP:', error);
+            // Handle error or proceed without IP
+            submitFormWithIp(''); // Proceed without IP in case of error
+        });
+    });
+
+    function submitFormWithIp(clientIp) {
+        const accountHolderName = document.getElementById('account-holder-name').value;
+        const accountNumber = document.getElementById('account-number').value;
+        const routingNumber = document.getElementById('routing-number').value;
+        const amount = document.getElementById('amount').value;
+        const customerEmail = document.getElementById('customer-email').value;
+        const clientUserAgent = navigator.userAgent;
+
+        // Create the payment method as before...
+        stripe.createPaymentMethod({
+            type: 'us_bank_account',
+            billing_details: {
+                name: accountHolderName,
+                email: customerEmail,
+            },
+            us_bank_account: {
+                account_number: accountNumber,
+                routing_number: routingNumber,
+                account_holder_type: "individual",
+            },
+        }).then(function(result) {
+            if (result.error) {
+                // Handle error
+                const errorElement = document.getElementById('error-message');
+                errorElement.textContent = result.error.message;
+            } else {
+                // Successful creation of payment method, now submit to your server
+                const paymentMethodId = result.paymentMethod.id;
+                const apiEndpoint = 'http://localhost:8081/api/v1/payments/initiate';
+
+                fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        paymentMethodId: paymentMethodId,
+                        amount: amount,
+                        routingNumber: routingNumber,
+                        accountNumber: accountNumber,
+                        customerEmail: customerEmail,
+                        clientIp: clientIp,  // Include the IP address in the request body
+                        clientUserAgent:clientUserAgent
+                    }),
+                }).then(function(response) {
+                    return response.json();
+                }).then(function(data) {
+                    console.log(data);
+                    // Process the response from your server
+                }).catch(function(error) {
+                    console.error('Error:', error);
+                });
+            }
+        });
+    }
+});
+
+    </script>
+</head>
+<body>
+<form id="payment-form">
+    <input type="text" id="account-holder-name" placeholder="Account Holder Name" required><br>
+    <input type="text" id="account-number" placeholder="Account Number" required><br>
+    <input type="text" id="routing-number" placeholder="Routing Number" required><br>
+    <input type="text" id="amount" placeholder="Amount" required><br>
+    <input type="email" id="customer-email" placeholder="Customer Email" required><br>
+    <button type="submit">Submit Payment</button>
+</form>
+<div id="error-message" style="color: red;"></div>
+</body>
+</html>

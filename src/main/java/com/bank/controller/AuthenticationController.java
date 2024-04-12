@@ -59,7 +59,7 @@ public class AuthenticationController {
             return ResponseEntity.ok(authenticationService.signup(request));
         }
     }
-
+//
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponse> signin(@RequestBody SigninRequest request) {
         logger.debug("Request ::::::::::::::::: {}",request);

@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -87,7 +88,7 @@ public class TransactionController {
         return ResponseEntity.ok(pendingTransactions);
     }
 
-    @GetMapping("/customerpending")
+    @GetMapping("/customer")
     public ResponseEntity<?> listCustomerPendingTransactions(HttpServletRequest request) {
         String token = getBearerToken(request);
         if (token == null) {
@@ -99,9 +100,21 @@ public class TransactionController {
         if(user.isPresent()) {
             logger.debug("UserID : {}",user.get().getUserId());
 //            return ResponseEntity.ok(accountService.listAccountsByUserId(user.get().getUserId()));
-            List<TransactionRequest> pendingTransactions = transactionService.findAllPendingCustomerTransactions();
-            List<TransactionRequest> abc =  pendingTransactions.stream().filter(a->a.getToUserId().equals(user.get().getUserId())).toList();
-            return ResponseEntity.ok(abc);
+//            List<TransactionRequest> allTransactions = transactionService.findAllCustomerTransactions();
+            List<TransactionRequest> filteredTransactions = transactionService.findAllCustomerTransactions()
+                    .stream()
+                    .filter(transaction -> {
+                        if (transaction.getTransactionType().equals(TransactionType.CREDIT)) {
+                            return transaction.getToUserId().equals(user.get().getUserId());
+                        } else{
+                            return transaction.getFromUserId().equals(user.get().getUserId());
+                        }
+                    })
+                    .sorted(Comparator.comparing(TransactionRequest::getTransactionTime, Comparator.reverseOrder()))
+                    .toList();
+
+            //List<TransactionRequest> abc =  allTransactions.stream().filter(a->a.getFromUserId().equals(user.get().getUserId())).toList();
+            return ResponseEntity.ok(filteredTransactions);
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized or user not found");
 

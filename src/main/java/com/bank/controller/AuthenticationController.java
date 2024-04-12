@@ -14,6 +14,7 @@ import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
 import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
@@ -62,6 +64,17 @@ public class AuthenticationController {
     public ResponseEntity<JwtAuthenticationResponse> signin(@RequestBody SigninRequest request) {
         logger.debug("Request ::::::::::::::::: {}",request);
         return ResponseEntity.ok(authenticationService.signin(request));
+    }
+
+    @PostMapping("/signout")
+    public ResponseEntity<?> signout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            authenticationService.blacklistToken(token);
+            return ResponseEntity.ok().body("User logged out successfully.");
+        }
+        return ResponseEntity.badRequest().body("No active session found or invalid token.");
     }
 
 

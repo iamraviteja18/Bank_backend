@@ -33,7 +33,7 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findByStatus(PaymentStatus.PENDING_ADMIN);
     }
 
-    public List<TransactionRequest> findAllPendingCustomerTransactions() {
+    public List<TransactionRequest> findAllCustomerTransactions() {
         return transactionRepository.findAll();
     }
 
@@ -138,6 +138,8 @@ public class TransactionServiceImpl implements TransactionService {
             transactionRequest.setTransactionId(transactionId);
             transactionRequest.setToUserId(account.getUserId());
             transactionRequest.setFromUserId("11-11-11-11");
+            transactionRequest.setTransactionTime(LocalDateTime.now());
+            transactionRequest.setStatus(PaymentStatus.APPROVED);
             transactionRepository.save(transactionRequest);
             return ResponseEntity.ok("Amount credited successfully");
         }

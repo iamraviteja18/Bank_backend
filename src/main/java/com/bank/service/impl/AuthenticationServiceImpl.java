@@ -6,6 +6,7 @@ import com.bank.entities.Account;
 import com.bank.repository.UserRepository;
 import com.bank.service.SequenceGeneratorService;
 //import com.bank.service.StripeService;
+import com.bank.service.TokenStore;
 import com.stripe.exception.StripeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +31,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final TokenStore tokenStore;
 
     @Autowired
     private SequenceGeneratorService sequenceGeneratorService;
-
-//    @Autowired
-//    private StripeService stripeService;
 
     @Override
     public JwtAuthenticationResponse signup(SignUpRequest request) {
@@ -49,43 +48,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 //        return ResponseEntity.ok(SignupResponse.of(jwt, user));
         return JwtAuthenticationResponse.builder().token(jwt).userId(user.getUserId()).build();
     }
-//    public JwtAuthenticationResponse signup(SignUpRequest request) {
-//        // Create and save the user
-//        User user = User.builder()
-//                .email(request.getEmail())
-//                .password(passwordEncoder.encode(request.getPassword()))
-//                .role(Role.USER)
-//                .build();
-//
-//        long sequence = sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME);
-//        user.setUserId(String.format("%08d", sequence));
-//        userRepository.save(user);
-//
-//        // Generate JWT
-//        String jwt = jwtService.generateToken(user);
-//
-//        try {
-//            // Create a Stripe Customer for the new user
-//            String stripeCustomerId = stripeService.createStripeCustomer(user.getEmail());
-//            user.setStripeBankAccountToken(stripeCustomerId);
-//            userRepository.save(user); // Update user with Stripe Customer ID
-//
-//            // If you have bank account details (token) in SignUpRequest, attach it here
-//            // Example: stripeService.attachBankAccountToCustomer(stripeCustomerId, request.getBankAccountToken());
-//
-//        } catch (StripeException e) {
-//            // Handle Stripe exceptions (e.g., log and decide how to proceed)
-//            // Depending on your application's requirements, you might rollback user creation or handle this differently
-//            System.err.println("Stripe error during signup: " + e.getMessage());
-//            // For simplicity, throwing a RuntimeException, but in a real application, consider a more graceful error handling strategy
-//            throw new RuntimeException("Failed to create Stripe customer: " + e.getMessage());
-//        }
-//
-//        return JwtAuthenticationResponse.builder()
-//                .token(jwt)
-//                .userId(user.getUserId())
-//                .build();
-//    }
 
     @Override
     public JwtAuthenticationResponse signin(SigninRequest request) {
@@ -96,6 +58,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var jwt = jwtService.generateToken(user);
 
         return JwtAuthenticationResponse.builder().token(jwt).userId(user.getUserId()).build();
+    }
+
+    @Override
+    public void blacklistToken(String token) {
+        jwtService.invalidateToken(token);
+//        tokenStore.blacklistToken(token);
     }
 }
 

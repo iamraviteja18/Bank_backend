@@ -22,6 +22,10 @@ import io.jsonwebtoken.security.Keys;
 public class JwtServiceImpl implements JwtService {
     @Value("${token.signing.key}")
     private String jwtSigningKey;
+
+    private Map<String, Date> blacklistedTokens = new HashMap<>();
+
+
     @Override
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -32,10 +36,29 @@ public class JwtServiceImpl implements JwtService {
         return generateToken(new HashMap<>(), userDetails);
     }
 
+//    @Override
+//    public boolean isTokenValid(String token, UserDetails userDetails) {
+//        final String userName = extractUserName(token);
+//        return (userName.equals(userDetails.getUsername())) && !isTokenExpired(token);
+//    }
+
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String userName = extractUserName(token);
-        return (userName.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        final String username = extractUserName(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token) && !isTokenBlacklisted(token);
+    }
+
+    private boolean isTokenBlacklisted(String token) {
+        Date tokenExpiryDate = blacklistedTokens.get(token);
+        if (tokenExpiryDate != null) {
+            return !tokenExpiryDate.before(new Date()); // Check if the current date is before the expiration date of the token
+        }
+        return false; // If token not in blacklist, it's not blacklisted
+    }
+
+    @Override
+    public void invalidateToken(String token) {
+        blacklistedTokens.put(token, extractExpiration(token));
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {

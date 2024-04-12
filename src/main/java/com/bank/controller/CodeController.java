@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
+@CrossOrigin(origins = "http://localhost:3000")
 public class CodeController {
 
     private final GoogleAuthenticator gAuth;

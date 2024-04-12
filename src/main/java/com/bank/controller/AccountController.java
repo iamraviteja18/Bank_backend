@@ -23,6 +23,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/accounts")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;

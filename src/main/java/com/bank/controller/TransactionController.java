@@ -1,20 +1,36 @@
 package com.bank.controller;
 
 import com.bank.entities.*;
+import com.bank.repository.UserRepository;
 import com.bank.service.AccountService;
+import com.bank.service.JwtService;
 import com.bank.service.PaymentService;
 import com.bank.service.impl.TransactionServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/transactions")
 public class TransactionController {
+
+    private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    JwtService jwtService;
 
     @Autowired
     private TransactionServiceImpl transactionService;
@@ -60,6 +76,11 @@ public class TransactionController {
         return transactionService.transferFunds(transactionRequest.getFromAccountId(),transactionRequest.getToAccountId(), transactionRequest.getAmount());
     }
 
+    @PostMapping("/requestFunds")
+    public ResponseEntity<?> requestFunds(@RequestBody TransactionRequest transactionRequest) {
+        return transactionService.requestFunds(transactionRequest.getFromAccountId(),transactionRequest.getToAccountId(), transactionRequest.getAmount());
+    }
+
     @GetMapping("/adminpending")
     public ResponseEntity<List<TransactionRequest>> listAdminPendingTransactions() {
         List<TransactionRequest> pendingTransactions = transactionService.findAllPendingAdminTransactions();
@@ -67,9 +88,30 @@ public class TransactionController {
     }
 
     @GetMapping("/customerpending")
-    public ResponseEntity<List<TransactionRequest>> listCustomerPendingTransactions() {
-        List<TransactionRequest> pendingTransactions = transactionService.findAllPendingCustomerTransactions();
-        return ResponseEntity.ok(pendingTransactions);
+    public ResponseEntity<?> listCustomerPendingTransactions(HttpServletRequest request) {
+        String token = getBearerToken(request);
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No bearer token provided");
+        }
+        String username = jwtService.extractUserName(token);
+        logger.debug("username :::::::::::::::::::{}",username);
+        Optional<User> user = userRepository.findByEmail(username);
+        if(user.isPresent()) {
+            logger.debug("UserID : {}",user.get().getUserId());
+//            return ResponseEntity.ok(accountService.listAccountsByUserId(user.get().getUserId()));
+            List<TransactionRequest> pendingTransactions = transactionService.findAllPendingCustomerTransactions();
+            List<TransactionRequest> abc =  pendingTransactions.stream().filter(a->a.getToUserId().equals(user.get().getUserId())).toList();
+            return ResponseEntity.ok(abc);
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized or user not found");
+
+    }
+    private String getBearerToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 
     @PostMapping("/approveTransaction")

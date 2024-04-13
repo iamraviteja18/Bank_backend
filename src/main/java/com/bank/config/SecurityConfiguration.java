@@ -42,7 +42,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/**","/api/v1/accounts/**","/api/v1/payments/**").permitAll()//,"/api/v1/transactions/**").permitAll()
+                .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/**","/api/v1/accounts/**","/api/v1/payments/**","/api/v1/users/**").permitAll()//,"/api/v1/transactions/**").permitAll()
                         .requestMatchers("/api/v1/transactions/pending").hasAnyAuthority("INTERNAL", "ADMIN").anyRequest().authenticated())
                 //.authorizeHttpRequests(requests -> requests.requestMatchers("").hasRole(""))
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))

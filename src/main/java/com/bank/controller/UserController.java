@@ -1,5 +1,6 @@
 package com.bank.controller;
 
+import com.bank.entities.Account;
 import com.bank.entities.SendUser;
 import com.bank.entities.User;
 import com.bank.repository.UserRepository;
@@ -75,5 +76,27 @@ public class UserController {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+
+    @PutMapping("/")
+    public ResponseEntity<?> updateAccount( @RequestBody  SendUser sendUser, HttpServletRequest request) {
+        String token = getBearerToken(request);
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No bearer token provided");
+        }
+        String username = jwtService.extractUserName(token);
+        Optional<User> user = userRepository.findByEmail(username);
+
+        if (user.isPresent()) {
+            User usr = user.get();
+            usr.setFirstName(sendUser.getFirstName());
+            usr.setLastName(sendUser.getLastName());
+            usr.setPhoneNumber(sendUser.getPhoneNumber());
+            userRepository.save(usr);
+            return ResponseEntity.ok("Account updated successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not found or not authorized");
+        }
     }
 }

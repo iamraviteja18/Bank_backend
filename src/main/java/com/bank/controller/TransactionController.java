@@ -113,7 +113,6 @@ public class TransactionController {
                     })
                     .sorted(Comparator.comparing(TransactionRequest::getTransactionTime, Comparator.reverseOrder()))
                     .toList();
-
             //List<TransactionRequest> abc =  allTransactions.stream().filter(a->a.getFromUserId().equals(user.get().getUserId())).toList();
             return ResponseEntity.ok(filteredTransactions);
         }

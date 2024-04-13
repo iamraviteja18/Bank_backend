@@ -76,24 +76,12 @@ public class AccountController {
         }
     }
 
-//    @GetMapping("/all/")
-//    public ResponseEntity<?> listAllAccounts(@RequestParam("id") String userId) {
-//        Optional<User> user = userRepository.findByUserId(userId);
-//        if((user.isPresent()) && (user.get().getRole().equals(Role.ADMIN))) {
-//            return ResponseEntity.ok(accountService.listAllAccounts());
-//        }
-//        else {
-//            return ResponseEntity.ok("not found !!!!!");
-//        }
-//    }
-
     @PostMapping("/create")
     public ResponseEntity<?> createAccount(@RequestBody Account account,HttpServletRequest request){
         String token = getBearerToken(request);
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No bearer token provided");
         }
-
         String username = jwtService.extractUserName(token);
         logger.debug("username :::::::::::::::::::{}",username);
         Optional<User> user = userRepository.findByEmail(username);

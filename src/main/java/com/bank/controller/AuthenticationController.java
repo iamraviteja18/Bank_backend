@@ -59,7 +59,7 @@ public class AuthenticationController {
             return ResponseEntity.ok(authenticationService.signup(request));
         }
     }
-//
+
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponse> signin(@RequestBody SigninRequest request) {
         logger.debug("Request ::::::::::::::::: {}",request);
@@ -76,32 +76,5 @@ public class AuthenticationController {
         }
         return ResponseEntity.badRequest().body("No active session found or invalid token.");
     }
-
-
-//    @SneakyThrows
-//    @GetMapping("/generate_new/")
-//    public void generate(@RequestBody String username, HttpServletResponse response) {
-//        final GoogleAuthenticatorKey key = gAuth.createCredentials(username);
-//
-//        QRCodeWriter qrCodeWriter = new QRCodeWriter();
-//
-//        String otpAuthURL = GoogleAuthenticatorQRGenerator.getOtpAuthTotpURL("my-demo", username, key);
-//
-//        BitMatrix bitMatrix = qrCodeWriter.encode(otpAuthURL, BarcodeFormat.QR_CODE, 200, 200);
-//
-//        ServletOutputStream outputStream = response.getOutputStream();
-//        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
-//        outputStream.close();
-//    }
-
-//    @GetMapping("/profile")
-//    public ResponseEntity<UserProfileResponse> getProfile(Authentication authentication) {
-//        return ResponseEntity.ok(userService.getProfile(authentication.getName()));
-//    }
-//
-//    @PutMapping("/profile")
-//    public ResponseEntity<UserProfileResponse> updateProfile(@RequestBody ProfileUpdateRequest request, Authentication authentication) {
-//        return ResponseEntity.ok(userService.updateProfile(request, authentication.getName()));
-//    }
 
 }

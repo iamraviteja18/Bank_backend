@@ -144,20 +144,4 @@ public class TransactionController {
         }
     }
 
-//    @PostMapping("/approveTransaction")
-//    public ResponseEntity<String> approveCustomerTransaction(@RequestBody ApprovalRequest approvalRequest) {
-//        try {
-//            // Step 1: Fetch the transaction and attempt to approve/decline it
-//            String status = transactionService.approveTransaction(approvalRequest.getTransactionId(), approvalRequest.isApprove());
-//            return ResponseEntity.ok(status);
-//        } catch (IllegalStateException e) {
-//            // Handle specific known exceptions with appropriate messages
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        } catch (Exception e) {
-//            // General exception handling, could be due to unexpected errors
-//            // Consider logging this error as well
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
-//        }
-//    }
-
 }

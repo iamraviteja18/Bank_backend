@@ -59,9 +59,9 @@ public class AccountService {
         if (updatedAccountDetails.getPhoneNumber() != null) {
             oldAccount.setPhoneNumber(updatedAccountDetails.getPhoneNumber());
         } else if (updatedAccountDetails.getFirstName() != null) {
-            oldAccount.setPhoneNumber(updatedAccountDetails.getFirstName());
+            oldAccount.setFirstName(updatedAccountDetails.getFirstName());
         } else if (updatedAccountDetails.getLastName() != null) {
-            oldAccount.setPhoneNumber(updatedAccountDetails.getLastName());
+            oldAccount.setLastName(updatedAccountDetails.getLastName());
         }
         accountRepository.save(oldAccount);
     }

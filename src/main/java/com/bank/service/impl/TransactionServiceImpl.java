@@ -151,40 +151,6 @@ public class TransactionServiceImpl implements TransactionService {
         return null;
     }
 
-//    @Override
-//    public ResponseEntity<?> transfer(String accountId, BigDecimal amount) {
-//
-//        Account account = accountRepository.findByAccountNumber(accountId);
-//
-//        if(account != null) {
-//            TransactionRequest transactionRequest = new TransactionRequest();
-////            transactionRequest.setAccountId(accountId);
-//            transactionRequest.setAmount(amount);
-//            transactionRequest.setTransactionType(TransactionType.DEBIT);
-//            transactionRequest.setTransactionId(UUID.randomUUID().toString());
-////            transactionRequest.setUserId(account.getUserId());
-//            transactionRequest.setTransactionTime(LocalDateTime.now()); // Set transaction time
-//            // Check for approval requirement
-//            if (amount.compareTo(new BigDecimal("1000")) > 0) {
-//                transactionRequest.setStatus(PaymentStatus.PENDING); // Set status to pending
-//                transactionRepository.save(transactionRequest);
-//                return ResponseEntity.ok("Transaction is pending approval.");
-//            } else { // Process transactions below $1000 immediately
-//                if (account.getBalance().compareTo(amount) >= 0) {
-//                    account.setBalance(account.getBalance().subtract(amount));
-//                    accountRepository.save(account);
-//                    transactionRequest.setStatus(PaymentStatus.APPROVED); // Set status to approved
-//                    transactionRepository.save(transactionRequest);
-//                    return ResponseEntity.ok("Amount debited successfully.");
-//                } else {
-//                    return ResponseEntity.badRequest().body("Insufficient balance.");
-//                }
-//            }
-//        }
-//        return ResponseEntity.badRequest().body("Account not found.");
-////        return null;
-//    }
-
     public ResponseEntity<?> requestFunds(String fromAccountId, String toAccountId, BigDecimal amount) {
         // Retrieve both accounts
         Account fromAccount = accountRepository.findByAccountNumber(fromAccountId);

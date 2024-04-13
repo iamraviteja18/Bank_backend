@@ -78,21 +78,4 @@ public class CodeController {
     public Validation validateKey(@RequestBody ValidateCodeDto body) {
         return new Validation(gAuth.authorizeUser(body.getUsername(), body.getCode()));
     }
-
-//    @GetMapping("/scratches/{username}")
-//    public List<Integer> getScratches(@PathVariable String username) {
-//        return getScratchCodes(username);
-//    }
-//
-//    private List<Integer> getScratchCodes(@PathVariable String username) {
-//        return credentialRepository.getUser(username).getScratchCodes();
-//    }
-//
-//    @PostMapping("/scratches/")
-//    public Validation validateScratch(@RequestBody ValidateCodeDto body) {
-//        List<Integer> scratchCodes = getScratchCodes(body.getUsername());
-//        Validation validation = new Validation(scratchCodes.contains(body.getCode()));
-//        scratchCodes.remove(body.getCode());
-//        return validation;
-//    }
 }

@@ -108,9 +108,27 @@ public class TransactionController {
     }
 
     @GetMapping("/adminpending")
-    public ResponseEntity<List<TransactionRequest>> listAdminPendingTransactions() {
-        List<TransactionRequest> pendingTransactions = transactionService.findAllPendingAdminTransactions();
-        return ResponseEntity.ok(pendingTransactions);
+    public ResponseEntity<?> listAdminPendingTransactions(HttpServletRequest request) {
+        String token = getBearerToken(request);
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No bearer token provided");
+        }
+        String username = jwtService.extractUserName(token);
+        Optional<User> user = userRepository.findByEmail(username);
+        if (user.isPresent()) {
+            User usr = user.get();
+            if(usr.getRole().equals(Role.ADMIN)) {
+                List<TransactionRequest> pendingTransactions = transactionService.findAllPendingAdminTransactions();
+                return ResponseEntity.ok(pendingTransactions);
+            }
+            else{
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not found or not authorized");
+        }
+
+
     }
 
     @GetMapping("/customer")

@@ -73,7 +73,8 @@ public class TransactionServiceImpl implements TransactionService {
                         transactionRepository.save(transaction);
                         return "Transfer completed successfully.";
                     } else {
-                        return"Insufficient balance.";
+                        transaction.setStatus(PaymentStatus.DECLINED);
+                        throw new IllegalStateException( "Insufficient balance.");
                     }
                 }
                 transaction.setStatus(PaymentStatus.APPROVED);

@@ -38,7 +38,7 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findAll();
     }
 
-    public String approveTransaction(String transactionId, boolean approve) {
+    public String approveTransaction(String transactionId, boolean approve,User user) {
         Optional<TransactionRequest> transactions = transactionRepository.findByTransactionId(transactionId);
         if (transactions.isEmpty()) {
             throw new IllegalStateException("Transaction not found");
@@ -64,7 +64,7 @@ public class TransactionServiceImpl implements TransactionService {
                     Account fromAccount = accountRepository.findByAccountNumber(transaction.getFromAccountId());
                     Account toAccount = accountRepository.findByAccountNumber(transaction.getToAccountId());
 
-                    if (amount.compareTo(new BigDecimal("1000")) > 0) {
+                    if (amount.compareTo(new BigDecimal("1000")) > 0 & user.getRole().equals(Role.USER)) {
                         transaction.setStatus(PaymentStatus.PENDING_ADMIN); // Set status to pending
                         transactionRepository.save(transaction);
                         return "Transaction is pending approval.";

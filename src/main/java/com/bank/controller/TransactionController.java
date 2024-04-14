@@ -170,11 +170,22 @@ public class TransactionController {
     }
 
     @PostMapping("/approveTransaction")
-    public ResponseEntity<String> approveAdminTransaction(@RequestBody ApprovalRequest approvalRequest) {
+    public ResponseEntity<String> approveAdminTransaction(@RequestBody ApprovalRequest approvalRequest,HttpServletRequest request) {
         try {
+            String token = getBearerToken(request);
+            if (token == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No bearer token provided");
+            }
+            String username = jwtService.extractUserName(token);
+            logger.debug("username :::::::::::::::::::{}",username);
+            Optional<User> user = userRepository.findByEmail(username);
+            if(user.isPresent()) {
             // Step 1: Fetch the transaction and attempt to approve/decline it
-            String status = transactionService.approveTransaction(approvalRequest.getTransactionId(), approvalRequest.isApprove());
+            String status = transactionService.approveTransaction(approvalRequest.getTransactionId(), approvalRequest.isApprove(),user.get());
             return ResponseEntity.ok(status);
+            }
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized or user not found");
+
         } catch (IllegalStateException e) {
             // Handle specific known exceptions with appropriate messages
             return ResponseEntity.badRequest().body(e.getMessage());

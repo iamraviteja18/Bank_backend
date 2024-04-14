@@ -63,6 +63,13 @@ public class TransactionServiceImpl implements TransactionService {
                 } else if (transaction.getTransactionType().equals(TransactionType.REQUEST) | transaction.getTransactionType().equals(TransactionType.TRANSFER)) {
                     Account fromAccount = accountRepository.findByAccountNumber(transaction.getFromAccountId());
                     Account toAccount = accountRepository.findByAccountNumber(transaction.getToAccountId());
+
+                    if (amount.compareTo(new BigDecimal("1000")) > 0) {
+                        transaction.setStatus(PaymentStatus.PENDING_ADMIN); // Set status to pending
+                        transactionRepository.save(transaction);
+                        return "Transaction is pending approval.";
+                    }
+                    else{
                     if (fromAccount.getBalance().compareTo(amount) >= 0) {
                         fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
                         toAccount.setBalance(toAccount.getBalance().add(amount));
@@ -74,8 +81,9 @@ public class TransactionServiceImpl implements TransactionService {
                         return "Transfer completed successfully.";
                     } else {
                         transaction.setStatus(PaymentStatus.DECLINED);
-                        throw new IllegalStateException( "Insufficient balance.");
+                        throw new IllegalStateException("Insufficient balance.");
                     }
+                }
                 }
                 transaction.setStatus(PaymentStatus.APPROVED);
             } else {

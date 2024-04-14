@@ -39,29 +39,14 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     public String approveTransaction(String transactionId, boolean approve) {
-        // Step 1: Fetch the transaction
         Optional<TransactionRequest> transactions = transactionRepository.findByTransactionId(transactionId);
         if (transactions.isEmpty()) {
             throw new IllegalStateException("Transaction not found");
         } else {
             TransactionRequest transaction = transactions.get();
-//            if (transaction.getStatus().equals(PaymentStatus.PENDING_ADMIN) | transaction.getStatus().equals(PaymentStatus.PENDING_CUSTOMER)) {
-//                throw new IllegalStateException("Transaction is not pending");
-//            }
-//            TransactionRequest transaction = transactions.get();
-//            if(transaction.getStatus().equals(PaymentStatus.PENDING_CUSTOMER))
-//            {
-//
-//            }
-//            else if (transaction.getStatus().equals(PaymentStatus.PENDING_ADMIN)) {
-//                throw new IllegalStateException("Transaction is not pending");
-//            }
-//            else {
-//                throw new IllegalStateException("Transaction is not pending");
-//            }
-            // Step 2: Approve or Decline the Transaction
-            if (approve) {
-                if (transaction.getTransactionType().equals(TransactionType.DEBIT)| transaction.getTransactionType().equals(TransactionType.REQUEST)) {
+            BigDecimal amount = transaction.getAmount();
+            if (approve & !transaction.getStatus().equals(PaymentStatus.APPROVED)) {
+                if (transaction.getTransactionType().equals(TransactionType.DEBIT)) {
                     // Correct use of orElseThrow with Optional
                     Account account = accountRepository.findByAccountNumber(transaction.getFromAccountId());
                     if (account == null) {
@@ -75,10 +60,25 @@ public class TransactionServiceImpl implements TransactionService {
                     // Deduct the amount from the account balance
                     account.setBalance(account.getBalance().subtract(transaction.getAmount()));
                     accountRepository.save(account); // Persist the updated account balance
+                } else if (transaction.getTransactionType().equals(TransactionType.REQUEST) | transaction.getTransactionType().equals(TransactionType.TRANSFER)) {
+                    Account fromAccount = accountRepository.findByAccountNumber(transaction.getFromAccountId());
+                    Account toAccount = accountRepository.findByAccountNumber(transaction.getToAccountId());
+                    if (fromAccount.getBalance().compareTo(amount) >= 0) {
+                        fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
+                        toAccount.setBalance(toAccount.getBalance().add(amount));
+                        accountRepository.save(toAccount);
+                        accountRepository.save(fromAccount);
+                        transaction.setStatus(PaymentStatus.APPROVED); // Set status to approved
+                        transaction.setTransactionTime(LocalDateTime.now());
+                        transactionRepository.save(transaction);
+                        return "Transfer completed successfully.";
+                    } else {
+                        return"Insufficient balance.";
+                    }
                 }
                 transaction.setStatus(PaymentStatus.APPROVED);
             } else {
-                transaction.setStatus(PaymentStatus.DECLINED);
+                transaction.setStatus(PaymentStatus.APPROVED);
             }
             // Step 3: Persist the Changes
             logger.debug("transaction:{}",transaction);
@@ -221,7 +221,7 @@ public class TransactionServiceImpl implements TransactionService {
         } else { // Process transactions below $1000 immediately
             if (fromAccount.getBalance().compareTo(amount) >= 0) {
                 fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
-                toAccount.setBalance(fromAccount.getBalance().add(amount));
+                toAccount.setBalance(toAccount.getBalance().add(amount));
                 accountRepository.save(toAccount);
                 accountRepository.save(fromAccount);
                 transactionRequest.setStatus(PaymentStatus.APPROVED); // Set status to approved

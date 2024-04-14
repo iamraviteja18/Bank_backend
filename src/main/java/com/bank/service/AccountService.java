@@ -44,7 +44,11 @@ public class AccountService {
 //    }
     public void createAccount(Account account) {
         long sequence = sequenceGeneratorService.generateSequence(Account.SEQUENCE_NAME);
-        String accountPrefix = account.getAccountType() == AccountType.CHECKING ? "CA" : "SA";
+        String accountPrefix = switch (account.getAccountType()) {
+            case CHECKING -> "CA";
+            case SAVINGS -> "SA";
+            case MERCHANT -> "MA";
+        };
         String accountNumber = accountPrefix + String.format("%08d", sequence);
         account.setAccountNumber(accountNumber);
         accountRepository.save(account);

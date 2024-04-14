@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -151,7 +152,12 @@ public class TransactionServiceImpl implements TransactionService {
         return null;
     }
 
-    public ResponseEntity<?> requestFunds(String fromAccountId, String toAccountId, BigDecimal amount) {
+    @Override
+    public ResponseEntity<?> transferFunds(String fromAccountId, String toAccountId, BigDecimal amount) {
+        return null;
+    }
+
+    public ResponseEntity<?> requestFunds(String fromAccountId, String toAccountId, BigDecimal amount, User usr) {
         // Retrieve both accounts
         Account fromAccount = accountRepository.findByAccountNumber(fromAccountId);
         Account toAccount = accountRepository.findByAccountNumber(toAccountId);
@@ -161,6 +167,12 @@ public class TransactionServiceImpl implements TransactionService {
         }
         if (toAccount == null) {
             return ResponseEntity.badRequest().body("To account not found.");
+        }
+        if(!toAccount.getUserId().equals(usr.getUserId())){
+            return ResponseEntity.badRequest().body("You cannot do this.");
+        }
+        if (Objects.equals(fromAccount.getAccountNumber(), toAccount.getAccountNumber())){
+            return ResponseEntity.badRequest().body("Both Accounts cannot be same");
         }
         TransactionRequest debitTransaction = new TransactionRequest();
         debitTransaction.setFromAccountId(fromAccountId);
@@ -176,8 +188,7 @@ public class TransactionServiceImpl implements TransactionService {
         return ResponseEntity.ok("Request is in PENDING_CUSTOMER state");
     }
 
-    public ResponseEntity<?> transferFunds(String fromAccountId, String toAccountId, BigDecimal amount) {
-
+    public ResponseEntity<?> transferFunds(String fromAccountId, String toAccountId, BigDecimal amount, User usr) {
         Account fromAccount = accountRepository.findByAccountNumber(fromAccountId);
         Account toAccount = accountRepository.findByAccountNumber(toAccountId);
         if (fromAccount == null) {
@@ -185,6 +196,12 @@ public class TransactionServiceImpl implements TransactionService {
         }
         if (toAccount == null) {
             return ResponseEntity.badRequest().body("To account not found.");
+        }
+        if (Objects.equals(fromAccount.getAccountNumber(), toAccount.getAccountNumber())){
+            return ResponseEntity.badRequest().body("Both Accounts cannot be same");
+        }
+        if(!fromAccount.getUserId().equals(usr.getUserId())){
+            return ResponseEntity.badRequest().body("You cannot do this.");
         }
         TransactionRequest transactionRequest = new TransactionRequest();
         transactionRequest.setFromAccountId(fromAccountId);

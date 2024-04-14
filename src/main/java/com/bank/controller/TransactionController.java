@@ -74,13 +74,37 @@ public class TransactionController {
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<?> transfer(@RequestBody TransactionRequest transactionRequest) {
-        return transactionService.transferFunds(transactionRequest.getFromAccountId(),transactionRequest.getToAccountId(), transactionRequest.getAmount());
+    public ResponseEntity<?> transfer(@RequestBody TransactionRequest transactionRequest, HttpServletRequest request) {
+        String token = getBearerToken(request);
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No bearer token provided");
+        }
+        String username = jwtService.extractUserName(token);
+        Optional<User> user = userRepository.findByEmail(username);
+        if (user.isPresent()) {
+            User usr = user.get();
+            return transactionService.transferFunds(transactionRequest.getFromAccountId(),transactionRequest.getToAccountId(), transactionRequest.getAmount(),usr);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not found or not authorized");
+        }
+//        return transactionService.transferFunds(transactionRequest.getFromAccountId(),transactionRequest.getToAccountId(), transactionRequest.getAmount());
     }
 
     @PostMapping("/requestFunds")
-    public ResponseEntity<?> requestFunds(@RequestBody TransactionRequest transactionRequest) {
-        return transactionService.requestFunds(transactionRequest.getFromAccountId(),transactionRequest.getToAccountId(), transactionRequest.getAmount());
+    public ResponseEntity<?> requestFunds(@RequestBody TransactionRequest transactionRequest, HttpServletRequest request) {
+        String token = getBearerToken(request);
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No bearer token provided");
+        }
+        String username = jwtService.extractUserName(token);
+        Optional<User> user = userRepository.findByEmail(username);
+        if (user.isPresent()) {
+            User usr = user.get();
+            return transactionService.requestFunds(transactionRequest.getFromAccountId(),transactionRequest.getToAccountId(), transactionRequest.getAmount(),usr);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not found or not authorized");
+        }
+//        return transactionService.requestFunds(transactionRequest.getFromAccountId(),transactionRequest.getToAccountId(), transactionRequest.getAmount());
     }
 
     @GetMapping("/adminpending")

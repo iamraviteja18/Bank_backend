@@ -88,7 +88,7 @@ public class TransactionServiceImpl implements TransactionService {
                 }
                 transaction.setStatus(PaymentStatus.APPROVED);
             } else {
-                transaction.setStatus(PaymentStatus.APPROVED);
+                transaction.setStatus(PaymentStatus.DECLINED);
             }
             // Step 3: Persist the Changes
             logger.debug("transaction:{}",transaction);
